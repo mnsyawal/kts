@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Berita - Karang Taruna</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- NAVBAR (Sama dengan index) -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fa-solid fa-users-rays me-2"></i> Karang Taruna
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Beranda</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="berita.html">Berita</a></li>
+                    <li class="nav-item"><a class="nav-link" href="struktur.html">Struktur</a></li>
+                    <li class="nav-item"><a class="nav-link" href="dokumentasi.html">Dokumentasi</a></li>
+                    <li class="nav-item"><a class="nav-link" href="arsip.html">Arsip</a></li>
+                    <li class="nav-item"><a class="nav-link" href="tentang.html">Tentang</a></li>
+                </ul>
+                <div class="d-flex mt-2 mt-lg-0">
+                    <a href="admin/login.html" class="btn btn-login"><i class="fa-solid fa-lock me-1"></i> Login Admin</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="py-5">
+        <div class="container">
+            <div class="row mb-4 align-items-center">
+                <div class="col-md-6">
+                    <h2 class="fw-bold text-success mb-3 mb-md-0">Berita & Informasi</h2>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <select class="form-select bg-light" id="filterKategori" style="max-width: 150px;">
+                            <option value="">Semua Kategori</option>
+                            <option value="Kegiatan">Kegiatan</option>
+                            <option value="Pengumuman">Pengumuman</option>
+                            <option value="Artikel">Artikel</option>
+                        </select>
+                        <input type="text" id="inputSearch" class="form-control" placeholder="Cari berita...">
+                        <button class="btn btn-success" id="btnSearch"><i class="fa-solid fa-search"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- List Berita Container -->
+            <div class="row g-4" id="beritaContainer">
+                <!-- Skeleton Loader akan tampil saat fetch data -->
+                <div class="col-md-4"><div class="card-custom p-3"><div class="skeleton skeleton-img mb-3"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div></div></div>
+                <div class="col-md-4"><div class="card-custom p-3"><div class="skeleton skeleton-img mb-3"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div></div></div>
+                <div class="col-md-4"><div class="card-custom p-3"><div class="skeleton skeleton-img mb-3"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div></div></div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="d-flex justify-content-center mt-5">
+                <nav>
+                    <ul class="pagination" id="paginationBerita">
+                        <!-- Tombol Pagination akan di-render oleh JS -->
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER (Sama dengan index) -->
+    <footer>
+        <div class="container">
+            <div class="text-center text-light opacity-75 small">
+                &copy; 2026 Karang Taruna. Semua Hak Dilindungi.
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/public-berita.js"></script>
+</body>
+</html>

@@ -1,0 +1,614 @@
+// ==========================================
+// BAGIAN 1: KONFIGURASI
+// ==========================================
+const CONFIG = {
+  SPREADSHEET_ID: '182iahJHy3dfKeDLIAfcUPSYWuySgsQFVhIccaikXbos',
+  FOLDER_BERITA_ID: '13bieFVnuEcHOS1gKeg9IJtlKaHVVuncz',
+  FOLDER_DOKUMENTASI_ID: '1zEwBjLq8rG5Xto56FZHGddO2iH3bmXJL',
+  FOLDER_ARSIP_ID: '180_3DQWJsdO66PJniwo4seSaKpm4gpkx',
+  SECRET_KEY: 'KtSr66_Secret_Key_2026_!@#', 
+  TOKEN_EXPIRY: 24 * 60 * 60 * 1000 // 24 Jam
+};
+
+// ==========================================
+// BAGIAN 2: ENTRY POINT & ROUTING
+// ==========================================
+function doGet(e) {
+  return handleRequest(e, 'GET');
+}
+
+function doPost(e) {
+  return handleRequest(e, 'POST');
+}
+
+function handleRequest(e, method) {
+  try {
+    const action = e.parameter.action;
+    let payload = {};
+
+    if (method === 'POST' && e.postData && e.postData.contents) {
+      payload = JSON.parse(e.postData.contents);
+    }
+
+    // ================= ROUTING GET =================
+    if (method === 'GET') {
+      switch (action) {
+        case 'getBerita': return getBerita(e);
+        case 'getBeritaById': return getBeritaById(e);
+        case 'getArsip': return getArsip(e);
+        case 'getStruktur': return getStruktur(e);
+        case 'getDokumentasi': return getDokumentasi(e);
+        case 'getAdminDokumentasi': return requireAuth(e, ['ADMIN', 'USER'], getAdminDokumentasi);
+        case 'getAdminStruktur': return requireAuth(e, ['ADMIN'], getAdminStruktur);
+        case 'getUsers': return requireAuth(e, ['ADMIN'], getUsers);
+        case 'getStatistik': return getStatistik(e);
+        case 'getSettings': return getSettings(e);
+        default: return respondJSON(false, 'Action GET tidak valid.', null, null, 'INVALID_ACTION');
+      }
+    } 
+    
+    // ================= ROUTING POST =================
+    else if (method === 'POST') {
+      const pAction = payload.action || action;
+      const data = payload.data;
+
+      switch (pAction) {
+        case 'login': return login(data);
+        
+        // Modul Berita
+        case 'createBerita': return requireAuth(payload, ['ADMIN', 'USER'], () => createBerita(data, payload.user));
+        case 'updateBerita': return requireAuth(payload, ['ADMIN', 'USER'], () => updateBerita(data, payload.user));
+        case 'deleteBerita': return requireAuth(payload, ['ADMIN'], () => deleteBerita(data, payload.user));
+        
+        // Modul Arsip
+        case 'createArsip': return requireAuth(payload, ['ADMIN', 'USER'], () => createArsip(data, payload.user));
+        case 'updateArsip': return requireAuth(payload, ['ADMIN', 'USER'], () => updateArsip(data, payload.user));
+        case 'deleteArsip': return requireAuth(payload, ['ADMIN'], () => deleteArsip(data, payload.user));
+        
+        // Modul Dokumentasi
+        case 'createDokumentasi': return requireAuth(payload, ['ADMIN', 'USER'], () => createDokumentasi(data, payload.user));
+        case 'updateDokumentasi': return requireAuth(payload, ['ADMIN', 'USER'], () => updateDokumentasi(data, payload.user));
+        case 'deleteDokumentasi': return requireAuth(payload, ['ADMIN'], () => deleteDokumentasi(data, payload.user));
+
+        // Modul Struktur
+        case 'createStruktur': return requireAuth(payload, ['ADMIN'], () => createStruktur(data, payload.user));
+        case 'updateStruktur': return requireAuth(payload, ['ADMIN'], () => updateStruktur(data, payload.user));
+        case 'deleteStruktur': return requireAuth(payload, ['ADMIN'], () => deleteStruktur(data, payload.user));
+
+        // Modul User
+        case 'createUser': return requireAuth(payload, ['ADMIN'], () => createUser(data, payload.user));
+        case 'updateUser': return requireAuth(payload, ['ADMIN'], () => updateUser(data, payload.user));
+        case 'deleteUser': return requireAuth(payload, ['ADMIN'], () => deleteUser(data, payload.user));
+
+        // Modul Settings
+        case 'updateSettings': return requireAuth(payload, ['ADMIN'], () => updateSettings(data, payload.user));
+
+        // Modul Upload Gambar Inline (untuk Quill Editor)
+        case 'uploadInlineImage': return requireAuth(payload, ['ADMIN', 'USER'], () => uploadInlineImage(data, payload.user));
+
+        default: return respondJSON(false, 'Action POST tidak valid.', null, null, 'INVALID_ACTION');
+      }
+    }
+  } catch (error) {
+    return respondJSON(false, 'Terjadi kesalahan sistem.', null, null, 'SERVER_ERROR');
+  }
+}
+
+// ==========================================
+// BAGIAN 3: AUTHENTICATION & SECURITY
+// ==========================================
+function login(data) {
+  if (!data || !data.username || !data.password) {
+    return respondJSON(false, 'Username dan password wajib diisi.', null, null, 'VALIDATION_ERROR');
+  }
+  
+  const users = getSheetData('USERS');
+  const hashedInputPassword = hashSHA256(data.password);
+  
+  const user = users.find(u => u.username === data.username && u.password_hash === hashedInputPassword && (u.status || '').toLowerCase() === 'active');
+  
+  if (!user) {
+    return respondJSON(false, 'Username atau password salah (atau akun nonaktif).', null, null, 'AUTH_FAILED');
+  }
+  
+  const token = generateToken(user);
+  insertLog(user.id, user.username, 'LOGIN', 'AUTH', user.id);
+  
+  return respondJSON(true, 'Login berhasil.', {
+    token: token,
+    user: { id: user.id, username: user.username, nama: user.nama, role: user.role }
+  });
+}
+
+function generateToken(user) {
+  const timestamp = new Date().getTime();
+  const rawSignature = user.id + '.' + user.role + '.' + timestamp + '.' + CONFIG.SECRET_KEY;
+  const signature = hashSHA256(rawSignature);
+  return user.id + '|' + user.role + '|' + timestamp + '|' + signature;
+}
+
+function verifyToken(tokenStr) {
+  if (!tokenStr) return null;
+  const parts = tokenStr.split('|');
+  if (parts.length !== 4) return null;
+  
+  const [id, role, timestamp, signature] = parts;
+  const now = new Date().getTime();
+  if (now - parseInt(timestamp) > CONFIG.TOKEN_EXPIRY) return null;
+  
+  const expectedRaw = id + '.' + role + '.' + timestamp + '.' + CONFIG.SECRET_KEY;
+  if (signature === hashSHA256(expectedRaw)) {
+    return { id, role, username: 'user_auth' }; 
+  }
+  return null;
+}
+
+function requireAuth(requestObj, allowedRoles, callback) {
+  const token = requestObj.parameter ? requestObj.parameter.token : requestObj.token;
+  const user = verifyToken(token);
+  
+  if (!user) return respondJSON(false, 'Akses ditolak. Token tidak valid/kadaluarsa.', null, null, 'UNAUTHORIZED');
+  if (!allowedRoles.includes(user.role)) return respondJSON(false, 'Akses ditolak. Anda tidak memiliki izin.', null, null, 'FORBIDDEN');
+  
+  requestObj.user = user;
+  return callback();
+}
+
+function hashSHA256(input) {
+  const rawHash = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, input);
+  let txtHash = '';
+  for (let i = 0; i < rawHash.length; i++) {
+    let hashVal = rawHash[i];
+    if (hashVal < 0) { hashVal += 256; }
+    if (hashVal.toString(16).length == 1) { txtHash += '0'; }
+    txtHash += hashVal.toString(16);
+  }
+  return txtHash;
+}
+
+// ==========================================
+// BAGIAN 4: CONTROLLERS (GET PUBLIK & ADMIN)
+// ==========================================
+function getBerita(e) {
+  const page = parseInt(e.parameter.page) || 1;
+  const limit = parseInt(e.parameter.limit) || 6;
+  const category = e.parameter.kategori || '';
+  const search = (e.parameter.search || '').toLowerCase();
+  
+  const token = e.parameter.token;
+  const user = verifyToken(token);
+  const isPublic = !user;
+  
+  let data = getSheetData('BERITA');
+  
+  if (isPublic) {
+    data = data.filter(item => (item.status || '').toString().trim().toLowerCase() === 'published');
+  }
+  if (category) data = data.filter(item => item.kategori === category);
+  if (search) data = data.filter(item => item.judul.toLowerCase().includes(search));
+  
+  data.sort((a, b) => (new Date(b.created_at).getTime() || 0) - (new Date(a.created_at).getTime() || 0));
+  
+  const paginated = paginateData(data, page, limit);
+  return respondJSON(true, 'Data berita berhasil diambil.', paginated.data, paginated.meta);
+}
+
+function getBeritaById(e) {
+  const data = getSheetData('BERITA').find(item => item.id === e.parameter.id);
+  if (!data) return respondJSON(false, 'Berita tidak ditemukan', null, null, 'NOT_FOUND');
+  return respondJSON(true, 'Detail berita', data);
+}
+
+function getArsip(e) {
+  const page = parseInt(e.parameter.page) || 1;
+  const limit = parseInt(e.parameter.limit) || 10;
+  let data = getSheetData('ARSIP');
+  data.sort((a, b) => (new Date(b.created_at).getTime() || 0) - (new Date(a.created_at).getTime() || 0));
+  return respondJSON(true, 'Data arsip', paginateData(data, page, limit).data, paginateData(data, page, limit).meta);
+}
+
+function getStruktur(e) {
+  let data = getSheetData('STRUKTUR').filter(item => (item.status || '').toLowerCase() === 'active');
+  data.sort((a, b) => parseInt(a.urutan) - parseInt(b.urutan));
+  return respondJSON(true, 'Data struktur organisasi', data);
+}
+
+function getAdminStruktur(e) {
+  let data = getSheetData('STRUKTUR');
+  data.sort((a, b) => parseInt(a.urutan) - parseInt(b.urutan));
+  return respondJSON(true, 'Data struktur admin', data);
+}
+
+function getDokumentasi(e) {
+  let data = getSheetData('DOKUMENTASI').filter(item => (item.status || '').toLowerCase() === 'published');
+  data.sort((a, b) => (new Date(b.created_at).getTime() || 0) - (new Date(a.created_at).getTime() || 0));
+  return respondJSON(true, 'Data dokumentasi', data);
+}
+
+function getAdminDokumentasi(e) {
+  let data = getSheetData('DOKUMENTASI');
+  data.sort((a, b) => (new Date(b.created_at).getTime() || 0) - (new Date(a.created_at).getTime() || 0));
+  return respondJSON(true, 'Data dokumentasi admin', data);
+}
+
+function getUsers(e) {
+  const data = getSheetData('USERS').map(u => { delete u.password_hash; return u; });
+  return respondJSON(true, 'Data user', data);
+}
+
+function getStatistik(e) {
+  return respondJSON(true, 'Statistik Dashboard', {
+    berita: getSheetData('BERITA').length,
+    arsip: getSheetData('ARSIP').length,
+    dokumentasi: getSheetData('DOKUMENTASI').length,
+    users: getSheetData('USERS').length
+  });
+}
+
+function getSettings(e) {
+  const sheet = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID).getSheetByName('SETTINGS');
+  const data = sheet.getDataRange().getValues();
+  let settingsObj = {};
+  
+  for (let i = 1; i < data.length; i++) {
+    const key = data[i][0];
+    const value = data[i][1];
+    if (key && key.toString().trim() !== '') {
+      settingsObj[key] = value;
+    }
+  }
+  return respondJSON(true, 'Data pengaturan', settingsObj);
+}
+
+// ==========================================
+// BAGIAN 5: CONTROLLERS (POST - CRUD DATA)
+// ==========================================
+function createBerita(data, user) {
+  let imageUrl = '';
+  if (data.imageBase64) imageUrl = uploadFile(data.imageBase64, 'BRT_' + new Date().getTime(), CONFIG.FOLDER_BERITA_ID);
+  const id = 'BRT-' + new Date().getTime();
+  const now = new Date().toISOString();
+  insertRow('BERITA', {
+    id: id, judul: data.judul, slug: generateSlug(data.judul), kategori: data.kategori,
+    ringkasan: data.isi.substring(0, 150) + '...', isi: data.isi, gambar: imageUrl || data.gambar || '',
+    penulis: user.username, tanggal: data.tanggal || now.split('T')[0], status: data.status, created_at: now, updated_at: now
+  });
+  insertLog(user.id, user.username, 'CREATE', 'BERITA', id);
+  return respondJSON(true, 'Berita ditambahkan.');
+}
+
+function updateBerita(data, user) {
+  let imageUrl = data.gambar;
+  if (data.imageBase64) imageUrl = uploadFile(data.imageBase64, 'BRT_Upd_' + new Date().getTime(), CONFIG.FOLDER_BERITA_ID);
+  updateRow('BERITA', data.id, {
+    judul: data.judul, slug: generateSlug(data.judul), kategori: data.kategori, isi: data.isi,
+    ringkasan: data.isi ? (data.isi.substring(0, 150) + '...') : undefined, gambar: imageUrl, status: data.status, updated_at: new Date().toISOString()
+  });
+  insertLog(user.id, user.username, 'UPDATE', 'BERITA', data.id);
+  return respondJSON(true, 'Berita diupdate.');
+}
+
+function deleteBerita(data, user) {
+  deleteRow('BERITA', data.id);
+  insertLog(user.id, user.username, 'DELETE', 'BERITA', data.id);
+  return respondJSON(true, 'Berita dihapus.');
+}
+
+function createArsip(data, user) {
+  let fileUrl = '';
+  if (data.fileBase64) fileUrl = uploadFile(data.fileBase64, data.file_name, CONFIG.FOLDER_ARSIP_ID);
+  const id = 'ARS-' + new Date().getTime();
+  const now = new Date().toISOString();
+  insertRow('ARSIP', {
+    id: id, nomor_surat: data.nomor_surat, perihal: data.perihal, jenis: data.jenis,
+    tanggal: data.tanggal, tahun: data.tahun, file_url: fileUrl || data.file_url || '', file_name: data.file_name,
+    keterangan: data.keterangan, created_by: user.username, updated_by: user.username, created_at: now, updated_at: now
+  });
+  insertLog(user.id, user.username, 'CREATE', 'ARSIP', id);
+  return respondJSON(true, 'Arsip ditambahkan.');
+}
+
+function updateArsip(data, user) {
+  let fileUrl = data.file_url;
+  if (data.fileBase64) fileUrl = uploadFile(data.fileBase64, data.file_name, CONFIG.FOLDER_ARSIP_ID);
+  updateRow('ARSIP', data.id, {
+    nomor_surat: data.nomor_surat, perihal: data.perihal, jenis: data.jenis, tanggal: data.tanggal,
+    tahun: data.tahun, file_url: fileUrl, file_name: data.file_name, keterangan: data.keterangan, updated_by: user.username, updated_at: new Date().toISOString()
+  });
+  insertLog(user.id, user.username, 'UPDATE', 'ARSIP', data.id);
+  return respondJSON(true, 'Arsip diupdate.');
+}
+
+function deleteArsip(data, user) {
+  deleteRow('ARSIP', data.id);
+  insertLog(user.id, user.username, 'DELETE', 'ARSIP', data.id);
+  return respondJSON(true, 'Arsip dihapus.');
+}
+
+function createDokumentasi(data, user) {
+  let imageUrl = '';
+  if (data.imageBase64) imageUrl = uploadFile(data.imageBase64, 'DOK_' + new Date().getTime(), CONFIG.FOLDER_DOKUMENTASI_ID);
+  const id = 'DOK-' + new Date().getTime();
+  const now = new Date().toISOString();
+  insertRow('DOKUMENTASI', {
+    id: id, album: data.album, judul: data.judul, deskripsi: data.deskripsi,
+    tanggal: data.tanggal, tahun: data.tahun, gambar: imageUrl || data.gambar || '', status: data.status, created_at: now
+  });
+  insertLog(user.id, user.username, 'CREATE', 'DOKUMENTASI', id);
+  return respondJSON(true, 'Dokumentasi ditambahkan.');
+}
+
+function updateDokumentasi(data, user) {
+  let imageUrl = data.gambar;
+  if (data.imageBase64) imageUrl = uploadFile(data.imageBase64, 'DOK_Upd_' + new Date().getTime(), CONFIG.FOLDER_DOKUMENTASI_ID);
+  updateRow('DOKUMENTASI', data.id, {
+    album: data.album, judul: data.judul, deskripsi: data.deskripsi, tanggal: data.tanggal,
+    tahun: data.tahun, gambar: imageUrl, status: data.status
+  });
+  insertLog(user.id, user.username, 'UPDATE', 'DOKUMENTASI', data.id);
+  return respondJSON(true, 'Dokumentasi diupdate.');
+}
+
+function deleteDokumentasi(data, user) {
+  deleteRow('DOKUMENTASI', data.id);
+  insertLog(user.id, user.username, 'DELETE', 'DOKUMENTASI', data.id);
+  return respondJSON(true, 'Dokumentasi dihapus.');
+}
+
+function createStruktur(data, user) {
+  let imageUrl = '';
+  if (data.imageBase64) imageUrl = uploadFile(data.imageBase64, 'STR_' + new Date().getTime(), CONFIG.FOLDER_DOKUMENTASI_ID);
+  const id = 'STR-' + new Date().getTime();
+  insertRow('STRUKTUR', {
+    id: id, nama: data.nama, jabatan: data.jabatan, foto: imageUrl || data.foto || '',
+    periode: data.periode, deskripsi: data.deskripsi, urutan: data.urutan || 99, status: data.status || 'active'
+  });
+  insertLog(user.id, user.username, 'CREATE', 'STRUKTUR', id);
+  return respondJSON(true, 'Pengurus ditambahkan.');
+}
+
+function updateStruktur(data, user) {
+  let imageUrl = data.foto;
+  if (data.imageBase64) imageUrl = uploadFile(data.imageBase64, 'STR_Upd_' + new Date().getTime(), CONFIG.FOLDER_DOKUMENTASI_ID);
+  updateRow('STRUKTUR', data.id, {
+    nama: data.nama, jabatan: data.jabatan, periode: data.periode, 
+    urutan: data.urutan, status: data.status, deskripsi: data.deskripsi, foto: imageUrl
+  });
+  insertLog(user.id, user.username, 'UPDATE', 'STRUKTUR', data.id);
+  return respondJSON(true, 'Pengurus diupdate.');
+}
+
+function deleteStruktur(data, user) {
+  deleteRow('STRUKTUR', data.id);
+  insertLog(user.id, user.username, 'DELETE', 'STRUKTUR', data.id);
+  return respondJSON(true, 'Pengurus dihapus.');
+}
+
+function createUser(data, userAuth) {
+  const users = getSheetData('USERS');
+  if (users.find(u => u.username === data.username)) return respondJSON(false, 'Username sudah digunakan.');
+  const id = 'USR-' + new Date().getTime();
+  const now = new Date().toISOString();
+  insertRow('USERS', {
+    id: id, username: data.username, nama: data.nama, password_hash: hashSHA256(data.password),
+    role: data.role, status: data.status, created_at: now, updated_at: now
+  });
+  insertLog(userAuth.id, userAuth.username, 'CREATE', 'USER', id);
+  return respondJSON(true, 'User dibuat.');
+}
+
+function updateUser(data, userAuth) {
+  const updateData = { nama: data.nama, role: data.role, status: data.status, updated_at: new Date().toISOString() };
+  if (data.password && data.password.trim() !== '') {
+    updateData.password_hash = hashSHA256(data.password);
+  }
+  updateRow('USERS', data.id, updateData);
+  insertLog(userAuth.id, userAuth.username, 'UPDATE', 'USER', data.id);
+  return respondJSON(true, 'User diupdate.');
+}
+
+function deleteUser(data, userAuth) {
+  deleteRow('USERS', data.id);
+  insertLog(userAuth.id, userAuth.username, 'DELETE', 'USER', data.id);
+  return respondJSON(true, 'User dihapus.');
+}
+
+function updateSettings(data, user) {
+  const sheet = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID).getSheetByName('SETTINGS');
+  const sheetData = sheet.getDataRange().getValues();
+  
+  if (data.logoBase64) {
+    const logoUrl = uploadFile(data.logoBase64, 'LOGO_WEB_' + new Date().getTime(), CONFIG.FOLDER_DOKUMENTASI_ID);
+    data.settings.logo_url = logoUrl; 
+  }
+
+  // Upload hero background image jika ada
+  if (data.heroBgBase64) {
+    const heroUrl = uploadFile(data.heroBgBase64, 'HERO_BG_' + new Date().getTime(), CONFIG.FOLDER_DOKUMENTASI_ID);
+    data.settings.hero_bg_image = heroUrl;
+  }
+
+  for (let key in data.settings) {
+    let keyFound = false;
+    for (let i = 1; i < sheetData.length; i++) {
+      if (sheetData[i][0] === key) {
+        sheet.getRange(i + 1, 2).setValue(data.settings[key]);
+        keyFound = true;
+        break;
+      }
+    }
+    if (!keyFound) {
+      sheet.appendRow([key, data.settings[key], '']);
+    }
+  }
+  
+  insertLog(user.id, user.username, 'UPDATE', 'SETTINGS', 'Global_Settings');
+  return respondJSON(true, 'Pengaturan web berhasil disimpan.', data.settings);
+}
+
+function uploadInlineImage(data, user) {
+  if (!data || !data.imageBase64) {
+    return respondJSON(false, 'Data gambar tidak ditemukan.');
+  }
+  
+  try {
+    const filename = data.filename || ('INLINE_' + new Date().getTime());
+    const imageUrl = uploadFile(data.imageBase64, filename, CONFIG.FOLDER_BERITA_ID);
+    
+    if (!imageUrl) {
+      return respondJSON(false, 'Gagal mengunggah gambar ke Drive.');
+    }
+    
+    insertLog(user.id, user.username, 'UPLOAD_IMAGE', 'BERITA', filename);
+    
+    // Kembalikan URL dalam format yang siap dipakai Quill
+    return respondJSON(true, 'Gambar berhasil diunggah.', { url: imageUrl });
+  } catch (e) {
+    return respondJSON(false, 'Terjadi kesalahan saat mengunggah gambar.');
+  }
+}
+
+
+// ==========================================
+// BAGIAN 6: DATABASE UTILS (GOOGLE SHEETS)
+// ==========================================
+function getSheetData(sheetName) {
+  const sheet = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID).getSheetByName(sheetName);
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0];
+  const result = [];
+  
+  for (let i = 1; i < data.length; i++) {
+    if (!data[i][0] || data[i][0].toString().trim() === '') continue; 
+    
+    let obj = {};
+    for (let j = 0; j < headers.length; j++) {
+      obj[headers[j]] = data[i][j];
+    }
+    result.push(obj);
+  }
+  return result;
+}
+
+function insertRow(sheetName, dataObj) {
+  const sheet = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID).getSheetByName(sheetName);
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const rowData = [];
+  for (let i = 0; i < headers.length; i++) {
+    rowData.push(dataObj[headers[i]] !== undefined ? dataObj[headers[i]] : '');
+  }
+  sheet.appendRow(rowData);
+}
+
+function updateRow(sheetName, id, dataObj) {
+  const sheet = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID).getSheetByName(sheetName);
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0];
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0] === id) { 
+      for (let key in dataObj) {
+        let colIndex = headers.indexOf(key);
+        if (colIndex > -1 && dataObj[key] !== undefined) {
+          sheet.getRange(i + 1, colIndex + 1).setValue(dataObj[key]);
+        }
+      }
+      break;
+    }
+  }
+}
+
+function deleteRow(sheetName, id) {
+  const sheet = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID).getSheetByName(sheetName);
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0] === id) {
+      sheet.deleteRow(i + 1);
+      break;
+    }
+  }
+}
+
+function insertLog(userId, username, aktivitas, modul, recordId) {
+  insertRow('LOG', {
+    id: 'LOG-' + new Date().getTime(), user_id: userId, username: username,
+    aktivitas: aktivitas, modul: modul, record_id: recordId, timestamp: new Date().toISOString()
+  });
+}
+
+// ==========================================
+// BAGIAN 7: HELPERS & SYSTEM UTILS
+// ==========================================
+
+// --- FUNGSI UPLOAD FILE SUDAH DIPERBAIKI ---
+function uploadFile(base64Data, filename, folderId) {
+  try {
+    const splitBase = base64Data.split(',');
+    if (splitBase.length < 2) {
+      console.error('[UPLOAD] base64Data tidak valid (tidak ada koma pemisah)');
+      return '';
+    }
+
+    const mimeMatch = splitBase[0].match(/data:([^;]+)/);
+    const mimeType = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+    const byteCharacters = Utilities.base64Decode(splitBase[1]);
+    const blob = Utilities.newBlob(byteCharacters, mimeType, filename);
+    const folder = DriveApp.getFolderById(folderId);
+    
+    // 1. Buat file
+    const file = folder.createFile(blob);
+    console.log('[UPLOAD] File dibuat: ' + file.getName() + ' | ID: ' + file.getId());
+    
+    // 2. Set izin agar publik bisa melihat
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    
+    // 3. Verifikasi izin sudah terpasang
+    const viewers = file.getViewers();
+    const editors = file.getEditors();
+    // ANYONE_WITH_LINK tidak muncul di getViewers/getEditors, jadi kita cek lewat getSharingAccess
+    const access = file.getSharingAccess();
+    const permission = file.getSharingPermission();
+    console.log('[UPLOAD] Sharing access: ' + access + ' | Permission: ' + permission);
+    
+    // 4. Gunakan URL yang PALING RELIABLE untuk embed gambar
+    const fileId = file.getId();
+    
+    // Format ini paling stabil untuk ditampilkan di <img> tag:
+    // thumbnail cocok untuk gambar, dan tetap bisa dipakai untuk PDF/file lain
+    let url;
+    if (mimeType.startsWith('image/')) {
+      url = 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w1000';
+    } else if (mimeType === 'application/pdf') {
+      url = 'https://drive.google.com/file/d/' + fileId + '/preview';
+    } else {
+      url = 'https://drive.google.com/uc?export=download&id=' + fileId;
+    }
+    
+    console.log('[UPLOAD] URL publik: ' + url);
+    return url;
+    
+  } catch (e) {
+    console.error('[UPLOAD ERROR] ' + e.toString());
+    return '';
+  }
+}
+
+function respondJSON(success, message, data = null, pagination = null, errorCode = null) {
+  const res = { success, message };
+  if (data) res.data = data;
+  if (pagination) res.pagination = pagination;
+  if (errorCode) res.error_code = errorCode;
+  return ContentService.createTextOutput(JSON.stringify(res)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function paginateData(array, page, limit) {
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+  return {
+    data: array.slice(startIndex, endIndex),
+    meta: { page: page, limit: limit, total: array.length, total_pages: Math.ceil(array.length / limit) }
+  };
+}
+
+function generateSlug(text) {
+  return text.toString().toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '').replace(/\-\-+/g, '-').replace(/^-+/, '').replace(/-+$/, '');
+}

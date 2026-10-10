@@ -1,0 +1,41 @@
+karangtaruna-sidrap/ (Root)
+│
+├── admin/
+│   ├── index.html        (Dashboard Admin)
+│   ├── berita.html       (Kelola Berita)
+│   ├── arsip.html        (Kelola Arsip Surat)
+│   ├── dokumentasi.html  (Kelola Dokumentasi/Galeri)
+│   ├── struktur.html     (Kelola Struktur Organisasi)
+│   ├── users.html        (Kelola Pengguna Sistem)
+│   └── settings.html     (Pengaturan Web/CMS)
+│
+├── assets/
+│   ├── css/
+│   │   ├── admin.css     (Gaya khusus Panel Admin)
+│   │   └── style.css     (Gaya utama halaman publik)
+│   │
+│   └── js/
+│       ├── admin-arsip.js
+│       ├── admin-berita.js
+│       ├── admin-dokumentasi.js
+│       ├── admin-settings.js     (Baru saja ditambahkan)
+│       ├── admin-struktur.js
+│       ├── admin-users.js
+│       ├── api.js                (Fungsi inti komunikasi Backend)
+│       ├── auth.js               (Fungsi Login & Keamanan)
+│       ├── public-arsip.js
+│       ├── public-berita.js
+│       ├── public-detail.js
+│       ├── public-dokumentasi.js
+│       ├── public-home.js
+│       └── public-struktur.js
+│
+├── arsip.html            (Halaman Publik - Arsip)
+├── berita.html           (Halaman Publik - Daftar Berita)
+├── detail-berita.html    (Halaman Publik - Baca Berita Penuh)
+├── dokumentasi.html      (Halaman Publik - Galeri/Album)
+├── index.html            (Halaman Publik - Beranda/Home)
+├── login.html            (Halaman Login Admin)
+├── struktur.html         (Halaman Publik - Struktur Organisasi)
+├── tentang.html          (Halaman Publik - Tentang Kami)
+└── struktur-website      (File dokumen catatan struktur)

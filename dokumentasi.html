@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dokumentasi - Karang Taruna</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- NAVBAR (Copas Navbar dari index.html disini, ubah nav-link active ke Dokumentasi) -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html"><i class="fa-solid fa-users-rays me-2"></i> Karang Taruna</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Beranda</a></li>
+                    <li class="nav-item"><a class="nav-link" href="berita.html">Berita</a></li>
+                    <li class="nav-item"><a class="nav-link" href="struktur.html">Struktur</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="dokumentasi.html">Dokumentasi</a></li>
+                    <li class="nav-item"><a class="nav-link" href="arsip.html">Arsip</a></li>
+                    <li class="nav-item"><a class="nav-link" href="tentang.html">Tentang</a></li>
+                </ul>
+                <div class="d-flex mt-2 mt-lg-0"><a href="admin/login.html" class="btn btn-login"><i class="fa-solid fa-lock me-1"></i> Login Admin</a></div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="py-5">
+        <div class="container">
+            <h2 class="fw-bold text-success mb-4 text-center">Galeri Dokumentasi</h2>
+            <div class="row g-3" id="galeriContainer">
+                <!-- Skeleton Loader -->
+                <div class="col-6 col-md-4 col-lg-3"><div class="skeleton skeleton-img rounded-3" style="height: 250px;"></div></div>
+                <div class="col-6 col-md-4 col-lg-3"><div class="skeleton skeleton-img rounded-3" style="height: 250px;"></div></div>
+                <div class="col-6 col-md-4 col-lg-3"><div class="skeleton skeleton-img rounded-3" style="height: 250px;"></div></div>
+                <div class="col-6 col-md-4 col-lg-3"><div class="skeleton skeleton-img rounded-3" style="height: 250px;"></div></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Lightbox -->
+    <div class="modal fade" id="lightboxModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content bg-transparent border-0">
+                <div class="modal-body text-center p-0 position-relative">
+                    <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <img src="" id="lightboxImg" class="img-fluid rounded-3" alt="Dokumentasi Full">
+                    <div id="lightboxDesc" class="bg-dark text-white p-3 rounded-bottom text-start opacity-75 mt-n2">Deskripsi</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer><div class="container text-center text-light opacity-75 small">&copy; 2026 Karang Taruna.</div></footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/public-dokumentasi.js"></script>
+</body>
+</html>

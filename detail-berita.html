@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Berita - Karang Taruna</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fa-solid fa-users-rays me-2"></i> Karang Taruna
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Beranda</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="berita.html">Berita</a></li>
+                    <li class="nav-item"><a class="nav-link" href="struktur.html">Struktur</a></li>
+                    <li class="nav-item"><a class="nav-link" href="dokumentasi.html">Dokumentasi</a></li>
+                    <li class="nav-item"><a class="nav-link" href="arsip.html">Arsip</a></li>
+                    <li class="nav-item"><a class="nav-link" href="tentang.html">Tentang</a></li>
+                </ul>
+                <div class="d-flex mt-2 mt-lg-0">
+                    <a href="admin/login.html" class="btn btn-login"><i class="fa-solid fa-lock me-1"></i> Login Admin</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8" id="detailContainer">
+                    <!-- SKELETON LOADING -->
+                    <div id="loadingDetail">
+                        <div class="skeleton skeleton-title" style="width: 100%; height: 40px;"></div>
+                        <div class="skeleton skeleton-text" style="width: 50%;"></div>
+                        <div class="skeleton skeleton-img mt-4 mb-4" style="height: 400px;"></div>
+                        <div class="skeleton skeleton-text"></div>
+                        <div class="skeleton skeleton-text"></div>
+                        <div class="skeleton skeleton-text"></div>
+                    </div>
+
+                    <!-- KONTEN BERITA (Diisi oleh JS) -->
+                    <div id="contentDetail" class="d-none">
+                        <a href="berita.html" class="text-decoration-none text-success mb-3 d-inline-block"><i class="fa-solid fa-arrow-left me-1"></i> Kembali ke Berita</a>
+                        
+                        <span class="badge-category mb-2 d-inline-block" id="detKategori">Kategori</span>
+                        <h1 class="fw-bold mb-3" id="detJudul">Judul Berita</h1>
+                        
+                        <div class="d-flex align-items-center text-muted mb-4 small">
+                            <span class="me-3"><i class="fa-solid fa-calendar me-1"></i> <span id="detTanggal">Tanggal</span></span>
+                            <span><i class="fa-solid fa-user me-1"></i> <span id="detPenulis">Penulis</span></span>
+                        </div>
+
+                        <img src="" id="detGambar" class="img-fluid rounded-3 mb-4 w-100 shadow-sm" alt="Foto Berita" style="object-fit: cover; max-height: 450px;">
+                        
+                        <div class="article-content lh-lg fs-5 text-dark" id="detIsi">
+                            <!-- Isi berita -->
+                        </div>
+
+                        <hr class="my-5">
+                        
+                        <!-- SHARE BUTTONS -->
+                        <div class="d-flex align-items-center justify-content-between bg-light p-3 rounded-3">
+                            <span class="fw-bold">Bagikan berita ini:</span>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-success" onclick="shareWA()"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+                                <button class="btn btn-primary" onclick="shareFB()"><i class="fa-brands fa-facebook"></i> Facebook</button>
+                                <button class="btn btn-secondary" onclick="copyLink()"><i class="fa-solid fa-link"></i> Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container text-center text-light opacity-75 small">
+            &copy; 2026 Karang Taruna. Semua Hak Dilindungi.
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/public-detail.js"></script>
+</body>
+</html>

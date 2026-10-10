@@ -1,0 +1,207 @@
+/* ========================================================
+   FILE: assets/css/style.css
+   TEMA: Karang Taruna (Hijau Modern)
+======================================================== */
+
+:root {
+    --primary: #166534;
+    --secondary: #22C55E;
+    --dark: #14532D;
+    --light: #F0FDF4;
+    --bg-color: #F8FAFC;
+    --text-main: #1F2937;
+    --text-muted: #6B7280;
+    --white: #FFFFFF;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
+/* NAVBAR */
+.navbar {
+    background-color: var(--white);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.navbar-brand {
+    font-weight: 700;
+    color: var(--primary) !important;
+}
+.nav-link {
+    font-weight: 500;
+    color: var(--text-main) !important;
+    transition: color 0.3s;
+}
+.nav-link:hover, .nav-link.active {
+    color: var(--secondary) !important;
+}
+.btn-login {
+    background-color: var(--primary);
+    color: var(--white);
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+.btn-login:hover {
+    background-color: var(--dark);
+    color: var(--white);
+}
+
+/* HERO SECTION */
+.hero-section {
+    background: linear-gradient(135deg, var(--dark) 0%, var(--primary) 100%);
+    color: var(--white);
+    padding: 80px 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+/* Overlay untuk hero dengan background image */
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    z-index: 0;
+}
+.hero-section.has-bg-image::before {
+    opacity: 0.35;
+}
+.hero-section .container {
+    position: relative;
+    z-index: 1;
+}
+.hero-section.has-bg-image {
+    background: var(--dark);
+}
+.hero-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 15px;
+}
+.hero-subtitle {
+    font-size: 1.1rem;
+    font-weight: 300;
+    margin-bottom: 30px;
+    opacity: 0.9;
+}
+
+/* CARDS */
+.card-custom {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+    height: 100%;
+    background-color: var(--white);
+    overflow: hidden;
+}
+.card-custom:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+}
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+.badge-category {
+    background-color: var(--light);
+    color: var(--primary);
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+/* STATISTIK */
+.stats-section {
+    background-color: var(--primary);
+    color: var(--white);
+    padding: 40px 0;
+}
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+}
+
+/* FOOTER */
+footer {
+    background-color: var(--dark);
+    color: var(--white);
+    padding: 40px 0 20px;
+    margin-top: auto;
+}
+.footer-link {
+    color: var(--light);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+.footer-link:hover {
+    color: var(--secondary);
+}
+
+/* SKELETON LOADING */
+.skeleton {
+    background-color: #e2e5e7;
+    background-image: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+    background-size: 40px 100%;
+    background-repeat: no-repeat;
+    background-position: left -40px top 0;
+    animation: shine 1s ease-infinite;
+    border-radius: 4px;
+}
+@keyframes shine {
+    to { background-position: right -40px top 0; }
+}
+.skeleton-img { width: 100%; height: 200px; }
+.skeleton-text { height: 15px; margin-bottom: 10px; width: 100%; }
+.skeleton-title { height: 25px; margin-bottom: 15px; width: 80%; }
+
+
+/* Styling untuk gambar inline di dalam artikel berita */
+.article-content img,
+#detIsi img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 16px 0;
+    display: block;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.ql-editor img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    margin: 10px 0;
+}
+
+/* Styling untuk Embed Form & Video */
+.embed-container {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+}
+.embed-container iframe {
+    max-width: 100%;
+    width: 100%;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Arsip - Admin Karang Taruna</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet">
+    <link href="../assets/css/admin.css" rel="stylesheet">
+</head>
+<body>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script>checkAuth();</script>
+
+    <div class="admin-wrapper">
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">KT Admin Panel</div>
+            <ul class="sidebar-menu mt-3">
+                <li><a href="index.html"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
+                <li><a href="berita.html"><i class="fa-solid fa-newspaper"></i> Kelola Berita</a></li>
+                <li><a href="arsip.html" class="active"><i class="fa-solid fa-folder-open"></i> Arsip Surat</a></li>
+                <li><a href="dokumentasi.html"><i class="fa-solid fa-images"></i> Dokumentasi</a></li>
+                
+                <div id="adminOnlyMenu" style="display: none;">
+                    <li class="px-3 pt-3 pb-1 text-muted small fw-bold uppercase">Sistem</li>
+                    <li><a href="struktur.html"><i class="fa-solid fa-sitemap"></i> Struktur Org</a></li>
+                    <li><a href="users.html"><i class="fa-solid fa-users"></i> Kelola Pengguna</a></li>
+                </div>
+
+                <li><a href="#" onclick="logout()"><i class="fa-solid fa-right-from-bracket text-danger"></i> <span class="text-danger">Logout</span></a></li>
+            </ul>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <header class="admin-header">
+                <div class="d-flex align-items-center">
+                    <button class="btn-toggle-sidebar me-3" id="btnToggleSidebar"><i class="fa-solid fa-bars"></i></button>
+                    <h5 class="mb-0 fw-bold text-success">Kelola Arsip Surat</h5>
+                </div>
+                <div class="text-end">
+                    <div class="fw-bold text-dark" id="adminUserName">User</div>
+                    <div class="small text-muted" id="adminUserRole">Role</div>
+                </div>
+            </header>
+
+            <div class="admin-body">
+                
+                <!-- BAGIAN 1: TABEL ARSIP -->
+                <div id="viewList">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0">Daftar Arsip</h5>
+                        <button class="btn btn-success fw-bold" onclick="showForm()"><i class="fa-solid fa-plus me-1"></i> Tambah Arsip</button>
+                    </div>
+
+                    <div class="card card-custom p-0 border-0 shadow-sm">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>No. Surat</th>
+                                        <th>Perihal</th>
+                                        <th>Jenis</th>
+                                        <th>Tanggal</th>
+                                        <th class="text-center">File</th>
+                                        <th class="text-end">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableArsipBody">
+                                    <tr><td colspan="6" class="text-center py-4">Memuat data...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BAGIAN 2: FORM TAMBAH/EDIT ARSIP -->
+                <div id="viewForm" class="d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0" id="formTitle">Tambah Arsip Baru</h5>
+                        <button class="btn btn-outline-secondary fw-bold" onclick="hideForm()"><i class="fa-solid fa-arrow-left me-1"></i> Kembali</button>
+                    </div>
+
+                    <div class="card card-custom p-4 border-0 shadow-sm">
+                        <form id="formArsip">
+                            <input type="hidden" id="arsipId">
+                            <input type="hidden" id="fileLama">
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold small">Nomor Surat *</label>
+                                    <input type="text" id="nomorSurat" class="form-control" required placeholder="Contoh: 001/KT-SRT/VIII/2026">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold small">Jenis Surat *</label>
+                                    <select id="jenisSurat" class="form-select" required>
+                                        <option value="Masuk">Surat Masuk</option>
+                                        <option value="Keluar">Surat Keluar</option>
+                                        <option value="Keputusan">Surat Keputusan (SK)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small">Perihal / Tujuan *</label>
+                                <input type="text" id="perihal" class="form-control" required placeholder="Contoh: Undangan Rapat Pemuda">
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold small">Tanggal Surat *</label>
+                                    <input type="date" id="tanggal" class="form-control" required>
+                                </div>
+                                <div class="col-md-8 mb-3">
+                                    <label class="form-label fw-bold small">Upload Dokumen (Opsional)</label>
+                                    <input type="file" id="fileInput" class="form-control" accept=".pdf,.doc,.docx">
+                                    <small class="text-muted">Format: PDF/Word. Maks 3MB.</small>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold small">Keterangan Tambahan</label>
+                                <textarea id="keterangan" class="form-control" rows="3" placeholder="Opsional..."></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-success fw-bold px-4" id="btnSaveArsip"><i class="fa-solid fa-save me-1"></i> Simpan Arsip</button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../assets/js/admin-arsip.js"></script>
+</body>
+</html>

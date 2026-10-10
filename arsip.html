@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arsip Surat - Karang Taruna</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- NAVBAR (Active: Arsip) -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html"><i class="fa-solid fa-users-rays me-2"></i> Karang Taruna</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Beranda</a></li>
+                    <li class="nav-item"><a class="nav-link" href="berita.html">Berita</a></li>
+                    <li class="nav-item"><a class="nav-link" href="struktur.html">Struktur</a></li>
+                    <li class="nav-item"><a class="nav-link" href="dokumentasi.html">Dokumentasi</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="arsip.html">Arsip</a></li>
+                    <li class="nav-item"><a class="nav-link" href="tentang.html">Tentang</a></li>
+                </ul>
+                <div class="d-flex mt-2 mt-lg-0"><a href="admin/login.html" class="btn btn-login"><i class="fa-solid fa-lock me-1"></i> Login Admin</a></div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="py-5">
+        <div class="container">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
+                <h2 class="fw-bold text-success mb-0">Arsip Persuratan</h2>
+                <div class="input-group" style="max-width: 400px;">
+                    <input type="text" id="searchArsip" class="form-control" placeholder="Cari nomor/perihal surat...">
+                    <button class="btn btn-success" id="btnSearchArsip"><i class="fa-solid fa-search"></i></button>
+                </div>
+            </div>
+
+            <div class="card card-custom p-0 border-0 shadow-sm">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>No. Surat</th>
+                                <th>Perihal</th>
+                                <th>Jenis</th>
+                                <th>Tanggal</th>
+                                <th class="text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="arsipContainer">
+                            <!-- JS Inject Here -->
+                            <tr>
+                                <td colspan="5" class="text-center py-4">Memuat data arsip...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-center mt-4">
+                <ul class="pagination" id="paginationArsip"></ul>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer><div class="container text-center text-light opacity-75 small">&copy; 2026 Karang Taruna.</div></footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/public-arsip.js"></script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beranda - Karang Taruna</title>
+    <meta name="description" content="Portal Informasi Resmi Karang Taruna. Menyatukan pemuda untuk berkarya dan membangun desa.">
+    
+    <!-- Preconnect untuk CDN eksternal (mempercepat loading) -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- CSS Dependencies -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <!-- Tambahan Class CMS untuk Logo dan Nama Pendek -->
+                <img src="" alt="Logo" class="cms-logo me-2" style="height: 40px; display: none;" onload="this.style.display='block'" onerror="this.style.display='none'">
+                <span class="fw-bold cms-org-shortname"><i class="fa-solid fa-users-rays me-2"></i> Karang Taruna</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link active" href="index.html">Beranda</a></li>
+                    <li class="nav-item"><a class="nav-link" href="berita.html">Berita</a></li>
+                    <li class="nav-item"><a class="nav-link" href="struktur.html">Struktur</a></li>
+                    <li class="nav-item"><a class="nav-link" href="dokumentasi.html">Dokumentasi</a></li>
+                    <li class="nav-item"><a class="nav-link" href="arsip.html">Arsip</a></li>
+                    <li class="nav-item"><a class="nav-link" href="tentang.html">Tentang</a></li>
+                </ul>
+                <div class="d-flex mt-2 mt-lg-0">
+                    <a href="admin/login.html" class="btn btn-login text-decoration-none"><i class="fa-solid fa-lock me-1"></i> Login Admin</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- HERO SECTION -->
+        <section class="hero-section">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <!-- Tambahan Class CMS untuk Judul dan Deskripsi Hero -->
+                        <h1 class="hero-title cms-org-name" id="heroOrgName">Karang Taruna</h1>
+                        <p class="hero-subtitle cms-org-desc">Mewujudkan generasi muda yang tangguh, mandiri, dan berjiwa sosial tinggi untuk kemajuan bersama.</p>
+                        <a href="berita.html" class="btn btn-light btn-lg rounded-pill fw-bold text-success px-4 shadow-sm">
+                            Baca Berita Terbaru <i class="fa-solid fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BERITA TERBARU -->
+        <section class="py-5">
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="fw-bold mb-0 text-success">Berita Terbaru</h2>
+                    <a href="berita.html" class="text-decoration-none text-success fw-bold">Lihat Semua <i class="fa-solid fa-chevron-right"></i></a>
+                </div>
+                <div class="row g-4" id="beritaTerbaruContainer">
+                    <!-- Data dari JS API akan masuk kesini. Di bawah ini adalah Loading Skeleton -->
+                    <div class="col-md-4"><div class="card-custom p-3"><div class="skeleton skeleton-img mb-3"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div></div></div>
+                    <div class="col-md-4"><div class="card-custom p-3"><div class="skeleton skeleton-img mb-3"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div></div></div>
+                    <div class="col-md-4"><div class="card-custom p-3"><div class="skeleton skeleton-img mb-3"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STATISTIK -->
+        <section class="stats-section text-center">
+            <div class="container">
+                <div class="row g-4">
+                    <div class="col-6 col-md-3">
+                        <div class="stat-number" id="statBerita">-</div>
+                        <div>Berita</div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="stat-number" id="statDokumentasi">-</div>
+                        <div>Dokumentasi</div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="stat-number" id="statArsip">-</div>
+                        <div>Arsip Surat</div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="stat-number" id="statAnggota">-</div>
+                        <div>Anggota Aktif</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="row gy-4">
+                <div class="col-lg-5">
+                    <!-- Tambahan Class CMS untuk Nama dan Deskripsi Footer -->
+                    <h4 class="fw-bold mb-3"><i class="fa-solid fa-users-rays me-2"></i> <span class="cms-org-name">Karang Taruna</span></h4>
+                    <p class="text-light opacity-75 cms-org-desc">Portal informasi dan publikasi resmi kegiatan organisasi kepemudaan Karang Taruna. Transparan, Informatif, dan Inovatif.</p>
+                </div>
+                <div class="col-lg-4">
+                    <h5 class="fw-bold mb-3">Kontak</h5>
+                    <!-- Tambahan Class CMS untuk Alamat dan Email -->
+                    <p class="mb-1"><i class="fa-solid fa-location-dot me-2"></i> <span id="footerAddress" class="cms-address">Kabupaten Sidenreng Rappang</span></p>
+                    <p class="mb-1"><i class="fa-solid fa-envelope me-2"></i> <span class="cms-email">kontak@karangtaruna.local</span></p>
+                    <p class="mb-1"><i class="fa-solid fa-phone me-2"></i> <span class="cms-phone">-</span></p>
+                </div>
+                <div class="col-lg-3">
+                    <h5 class="fw-bold mb-3">Sosial Media</h5>
+                    <div class="d-flex gap-3">
+                        <!-- Tambahan Class CMS untuk Link Sosial Media -->
+                        <a href="#" class="footer-link fs-4 cms-link-ig"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="footer-link fs-4 cms-link-fb"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="#" class="footer-link fs-4"><i class="fa-brands fa-whatsapp"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="mt-4 mb-3 border-light opacity-25">
+            <div class="text-center text-light opacity-50 small cms-footer-text">
+                &copy; 2026 Karang Taruna. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="assets/js/api.js" defer></script>
+    <script src="assets/js/public-home.js" defer></script>
+</body>
+</html>
